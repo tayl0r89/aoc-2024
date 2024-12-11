@@ -33,7 +33,6 @@ def get_moves(positions: Dict[Position, int], at: Position) -> List[Position]:
     return options
 
 def find_routes(positions: Dict[Position, int], trailhead: Position, seen: Set[int]) -> List[Position]:
-    seen.add(trailhead)
     height = positions.get(trailhead)
     if height == None:
         raise ValueError(f"Trailhead should be in the map {trailhead}")
@@ -47,23 +46,28 @@ def find_routes(positions: Dict[Position, int], trailhead: Position, seen: Set[i
     
     results = []
     possible = list(filter(lambda x: not x in seen, moves))
-    # print(f"Potential moves for {trailhead} at height {height} are {possible}")
     for move in possible:
-        # print(f"Going to {move}")
-        results = [*results, *find_routes(positions, move, seen)]
+        udpated_seen = set()
+        for x in seen:
+            udpated_seen.add(x)
+        udpated_seen.add(trailhead)
+        results = [*results, *find_routes(positions, move, udpated_seen)]
     
     return results
 
 def part_one(positions, trailheads):
     score = 0
+    total = 0
     for trailhead in trailheads:
-        potential = set()
+        unique_peaks = set()
         results = find_routes(positions, trailhead, set())
         for x in results:
-            potential.add(x)
-        score = score + len(potential)
+            unique_peaks.add(x)
+        total = total + len(results)
+        score = score + len(unique_peaks)
         # print(f"From {trailhead} we can reach {len(potential)}")
     print(score)
+    print(total)
 
 if __name__ == "__main__":
     positions, trailheads = read_file("input.txt")
